@@ -1,4 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
+import AOS from "aos";
+import "aos/dist/aos.css";
+
 const Contact = () => {
   const [result, setResult] = React.useState("");
 
@@ -25,25 +28,35 @@ const Contact = () => {
     }
   };
 
+  useEffect(() => {
+    // Initialize AOS when the component mounts
+    AOS.init({
+      duration: 1200,
+      once: true,
+      offset: 100,
+    });
+  }, []);
+
   return (
     <section
       id="contact"
       className="bg-slate-800 text-white py-16 px-6 md:px-20"
+      data-aos="fade-up" // Animation for the entire section
     >
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-        <div>
+        <div data-aos="fade-up" data-aos-delay="200">
           <h2 className="text-4xl font-bold mb-4 text-green-500">Contact Us</h2>
           <p className="text-gray-100 text-lg mb-6">
             Have a question, a table booking, or just want to take membership?
-            Fill out the form and lets connect. I am always open to discussing
-            on new opportunities.
+            Fill out the form and let's connect. I am always open to discussing
+            new opportunities.
           </p>
           <ul className="text-gray-400 space-y-2">
             <li>
-              <strong>Email:</strong> Goldenball@gmail.com
+              <strong>Email:</strong> elyasbromand3@gmail.com
             </li>
             <li>
-              <strong>Phone:</strong> +93 780 929 573
+              <strong>Phone:</strong> +93 777 123 123 123
             </li>
             <li>
               <strong>Location:</strong> Kabul, Afghanistan
@@ -52,8 +65,12 @@ const Contact = () => {
         </div>
 
         {/* Form */}
-        <div className="bg-black p-8 rounded-lg shadow-lg">
-          <form className="space-y-4" onSubmit={onSubmit} >
+        <div
+          className="bg-black p-8 rounded-lg shadow-lg"
+          data-aos="fade-in"
+          data-aos-delay="400"
+        >
+          <form className="space-y-4" onSubmit={onSubmit}>
             <input
               type="text"
               placeholder="Your Name"
@@ -63,13 +80,13 @@ const Contact = () => {
             <input
               type="email"
               placeholder="Your Email"
-              className="w-full p-3 rounded bg-slate-800  border border-gray-200 text-white focus:outline-none focus:border-green-500"
+              className="w-full p-3 rounded bg-slate-800 border border-gray-200 text-white focus:outline-none focus:border-green-500"
               required
             />
             <textarea
               placeholder="Your Message"
               rows="5"
-              className="w-full p-3 rounded bg-slate-800  border border-gray-200 text-white focus:outline-none focus:border-green-500"
+              className="w-full p-3 rounded bg-slate-800 border border-gray-200 text-white focus:outline-none focus:border-green-500"
               required
             />
             <button

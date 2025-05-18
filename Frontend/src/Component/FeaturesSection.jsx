@@ -1,4 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
+import AOS from "aos";
+import "aos/dist/aos.css";
+
 import {
   ShieldCheck,
   Clock3,
@@ -46,22 +49,43 @@ const features = [
 ];
 
 const FeaturesSection = () => {
+  useEffect(() => {
+    AOS.init({
+      duration: 1000, // animation duration
+      once: true, // animate only once
+    });
+  }, []);
+
   return (
-    <section className="py-20 bg-black text-center">
+    <section className="py-20 bg-black text-center" data-aos="fade-up">
       <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-3xl sm:text-4xl font-bold text-green-600 mb-4">
+        <h1
+          className="text-3xl sm:text-4xl font-bold text-green-600 mb-4"
+          data-aos="fade-up"
+          data-aos-delay="100"
+        >
           Why Choose Us?
         </h1>
-        <p className="text-gray-100 mb-12">
+        <p
+          className="text-gray-100 mb-12"
+          data-aos="fade-up"
+          data-aos-delay="200"
+        >
           Experience snooker like never before with our fully equipped facility
           and smart features.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8"
+          data-aos="fade-up"
+          data-aos-delay="300"
+        >
           {features.map((feature, index) => (
             <div
               key={index}
               className="bg-slate-800 p-6 rounded-xl shadow-md hover:shadow-lg transition"
+              data-aos="zoom-in"
+              data-aos-delay={index * 100} // staggered animation
             >
               <div className="mb-4 flex justify-center">{feature.icon}</div>
               <h3 className="text-xl font-semibold text-gray-100 mb-2">

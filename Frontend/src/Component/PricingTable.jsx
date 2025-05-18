@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const PricingTable = () => {
   const plans = [
@@ -46,27 +48,43 @@ const PricingTable = () => {
     },
   ];
 
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: true,
+    });
+  }, []);
+
   return (
-    <section className="py-12 px-4 mt-4">
+    <section className="py-12 px-4 mt-4" data-aos="fade-up">
       <div className="max-w-6xl mx-auto">
         {/* Title */}
-        <h1 className="text-4xl font-bold text-center text-gray-100 mb-4">
+        <h1
+          className="text-4xl font-bold text-center text-gray-100 mb-4"
+          data-aos="fade-up"
+        >
           Snooker Club Membership Plans
         </h1>
 
         {/* Description */}
-        <p className="max-w-2xl mx-auto text-lg text-gray-400 text-center mb-12">
+        <p
+          className="max-w-2xl mx-auto text-lg text-gray-400 text-center mb-12"
+          data-aos="fade-up"
+          data-aos-delay="200"
+        >
           Join the best snooker club in town! Choose a plan that fits your style
           and enjoy exclusive benefits, priority bookings, and professional
           coaching.
         </p>
 
         {/* Pricing Cards */}
-        <div className="flex flex-col md:flex-row justify-center gap-8">
+        <div className="flex flex-col md:flex-row justify-center items-center gap-8">
           {plans.map((plan, index) => (
             <div
               key={index}
-              className="flex-1 max-w-md bg-slate-100 text-gray-900 rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
+              className="flex-1 max-w-md w-full bg-slate-100 text-gray-900 rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2"
+              data-aos="zoom-in"
+              data-aos-delay={index * 200}
             >
               {/* Plan Tag */}
               {plan.tag && (
