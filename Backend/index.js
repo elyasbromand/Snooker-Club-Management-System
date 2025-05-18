@@ -11,11 +11,11 @@ const app = express();
 const PORT = 5000;
 
 app.use(session({
-  secret: 'your-secret-key',
+  secret: 'no-secret-key-for-now',
   resave: true, 
   saveUninitialized: true, 
   cookie: {
-    secure: false, // Change to true if using HTTPS
+    secure: false,
     httpOnly: true,
     sameSite: 'lax', 
   }
@@ -24,11 +24,11 @@ app.use(session({
 
 
 //middleware 
-app.use(bodyParser.json()); //for json file
-app.use(express.urlencoded({ extended: true })); //for form data
+app.use(bodyParser.json()); 
+app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-  origin: 'http://localhost:5173', // My React port
-  credentials: true // Required for sessions
+  origin: 'http://localhost:5173', 
+  credentials: true 
 }));
 
 app.get("/api/checkSession", (req, res) => {
@@ -40,14 +40,14 @@ app.get("/api/checkSession", (req, res) => {
 });
 
 app.post('/api/logout', (req, res) => {
-  // Clear the session cookie
+  
   res.clearCookie('session-token', { 
     httpOnly: true,
     sameSite: 'strict',
-    secure: process.env.NODE_ENV === 'production' // Use secure in production
+    secure: process.env.NODE_ENV === 'production' 
   });
   
-  // Or if you're using session store (like express-session)
+  
   req.session.destroy(err => {
     if (err) {
       console.error('Session destruction error:', err);
@@ -62,7 +62,6 @@ app.use('/api/players',memberRoutes);
 app.use('/uploads', express.static("uploads"));
 app.use('/api/admin',adminRoutes);
 
-//Start Server
 app.listen(PORT, (err) => {
     if(err){ 
         throw err;
