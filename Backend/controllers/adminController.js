@@ -1,21 +1,17 @@
 import db from "../db.js";
 
 export const createTable = (req, res) => {
-  // Step 1: Extract data from the request body
   const { TableNumber, TableType, HourlyRate } = req.body;
 
-  // Step 2: Validation - make sure all fields are present
   if (!TableNumber || !TableType || !HourlyRate) {
     return res.status(400).json({
       message: "All fields (TableNumber, TableType, HourlyRate) are required.",
     });
   }
 
-  // Step 3: Prepare SQL query for inserting the new table into the database
   const query = `INSERT INTO tables (TableNumber, TableType, HourlyRate) VALUES (?, ?, ?)`;
   const values = [TableNumber, TableType, HourlyRate];
 
-  // Step 4: Execute the query to insert the data into the database
   db.query(query, values, (err, result) => {
     if (err) {
       console.error(err);
@@ -24,7 +20,6 @@ export const createTable = (req, res) => {
       });
     }
 
-    // Step 5: Return a success message with the created table information
     res.status(201).json({
       message: "Table created successfully!",
       table: {
@@ -37,10 +32,8 @@ export const createTable = (req, res) => {
 };
 
 export const getAllTables = (req, res) => {
-  // Step 1: Query to select all tables from the 'tables' table
   const query = "SELECT * FROM tables";
 
-  // Step 2: Execute the query to retrieve the tables
   db.query(query, (err, result) => {
     if (err) {
       console.error(err);
@@ -49,7 +42,6 @@ export const getAllTables = (req, res) => {
       });
     }
 
-    // Step 3: Return the result as a JSON response
     res.status(200).json({
       message: "Tables fetched successfully!",
       tables: result,
@@ -61,7 +53,6 @@ export const createPlayer = (req, res) => {
   console.log(req.body);
   const { Fullname, userName, phone, address, password } = req.body;
 
-  // Validate required fields (optional but recommended)
   if (!Fullname || !userName || !password || !phone || !address) {
     return res.status(400).json({ message: "All fields are required." });
   }
@@ -104,10 +95,8 @@ export const getAllPlayers = (req, res) => {
 };
 
 export const createJournalEntry = (req, res) => {
-  // Step 1: Extract data from the request body
   const { title, type, amount, description, related, createdBy } = req.body;
 
-  // Step 2: Validation - make sure all required fields are present
   if (!title || !type || !amount || !createdBy) {
     return res.status(400).json({
       message:
@@ -115,11 +104,9 @@ export const createJournalEntry = (req, res) => {
     });
   }
 
-  // Step 3: Prepare SQL query for inserting the new journal entry into the database
   const query = `INSERT INTO journal (title, type, amount, description, RelatedTo, createdBy) VALUES (?, ?, ?, ?, ?, ?)`;
   const values = [title, type, amount, description, related, createdBy];
 
-  // Step 4: Execute the query
   db.query(query, values, (err, result) => {
     if (err) {
       console.error(err);
@@ -128,7 +115,6 @@ export const createJournalEntry = (req, res) => {
       });
     }
 
-    // Step 5: Success response
     res.status(201).json({
       message: "Journal entry created successfully!",
       journal: {
@@ -194,12 +180,10 @@ export const getAllSuppliers = (req, res) => {
     }
 
     res.status(200).json(results);
-    // console.log(results);
   });
 };
 
 export const createCafeRecord = (req, res) => {
-  //console.log(req.body);
   const { itemId, quantity, soldBy, tableID } = req.body;
 
   if (!itemId || !quantity || !soldBy || !tableID) {
@@ -238,7 +222,6 @@ export const showCafeRecords = (req, res) => {
 };
 
 export const createInventoryRecord = (req, res) => {
-  //console.log(req.body);
   const { itemName, supplierId, category, quantity, costPerUnit, salePrice } =
     req.body;
 
@@ -349,7 +332,6 @@ export const gameHistoryFirstForm = (req, res) => {
         return res.status(500).json({ message: "Database error." });
       }
 
-      // 1) Update the table's status to "In-Use"
       const updateStatusQuery = `UPDATE tables SET Status = 'In-Use' WHERE TableID = ?`;
       db.query(updateStatusQuery, [table], (updateErr) => {
         if (updateErr) {
@@ -359,7 +341,6 @@ export const gameHistoryFirstForm = (req, res) => {
           });
         }
 
-        // 2) Award 1 loyalty point to each player
         const updateLoyaltyQuery = `
           UPDATE players
           SET LoyaltyPoints = LoyaltyPoints + 1
@@ -368,7 +349,6 @@ export const gameHistoryFirstForm = (req, res) => {
         db.query(updateLoyaltyQuery, [player1, player2], (loyaltyErr) => {
           if (loyaltyErr) {
             console.error("Error updating player loyalty:", loyaltyErr);
-            // we’ll still return success for the main record
             return res.status(201).json({
               message:
                 "Record created and table status updated, but failed to award loyalty points.",
@@ -376,7 +356,6 @@ export const gameHistoryFirstForm = (req, res) => {
             });
           }
 
-          // All done!
           res.status(201).json({
             message:
               "Record created successfully, table status updated, and loyalty points awarded.",
@@ -395,7 +374,6 @@ export const gameHistorySecondForm = (req, res) => {
     return res.status(400).json({ message: "All fields are required." });
   }
 
-  // Step 1: Find the latest GameID for this TableID
   const getLatestGameIDQuery = `
     SELECT GameID FROM gamehistory 
     WHERE TableID = ? 
@@ -413,7 +391,6 @@ export const gameHistorySecondForm = (req, res) => {
 
     const latestGameID = rows[0].GameID;
 
-    // Step 2: Update that game record
     const updateGameQuery = `
       UPDATE gamehistory 
       SET EndTime = ?, TotalAmount = ?
@@ -431,7 +408,6 @@ export const gameHistorySecondForm = (req, res) => {
             .json({ message: "Database error during game update." });
         }
 
-        // Step 3: Set the table status to Available
         const updateTableStatusQuery = `
         UPDATE tables SET Status = 'Available' WHERE TableID = ?
       `;
@@ -472,26 +448,22 @@ export const editUser = (req, res) => {
   const userID = req.params.userID;
   const { fullName, email, phone, role } = req.body;
 
-  // Ensure all required fields are provided
   if (!userID || !fullName || !email || !phone || !role) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  // Create the SQL query to update the user
   const query = `
     UPDATE users
     SET FullName = ?, Email = ?, Phone = ?, Role = ?
     WHERE UserID = ?
   `;
 
-  // Execute the query
   db.query(query, [fullName, email, phone, role, userID], (err, result) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ message: "Failed to update user" });
     }
 
-    // If the update is successful
     if (result.affectedRows > 0) {
       return res.status(200).json({ message: "User updated successfully" });
     } else {
@@ -503,22 +475,18 @@ export const editUser = (req, res) => {
 export const deleteUser = (req, res) => {
   const userID = req.params.userID;
 
-  // Check if userID is provided
   if (!userID) {
     return res.status(400).json({ message: "User ID is required" });
   }
 
-  // Create the SQL query to delete the user
   const query = "DELETE FROM users WHERE UserID = ?";
 
-  // Execute the query
   db.query(query, [userID], (err, result) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ message: "Failed to delete user" });
     }
 
-    // If the delete is successful
     if (result.affectedRows > 0) {
       return res.status(200).json({ message: "User deleted successfully" });
     } else {
@@ -528,25 +496,19 @@ export const deleteUser = (req, res) => {
 };
 
 export const editCanteen = (req, res) => {
-  // Extract SaleID from URL parameters
   const SaleID = req.params.SaleID;
-
-  // Extract data from request body
   const { itemId, quantity, soldBy, tableID } = req.body;
 
-  // Validate inputs
   if (!SaleID || !itemId || !quantity || !soldBy || !tableID) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  // SQL query to update the cafesale
   const query = `
     UPDATE cafesales
     SET ItemID = ?, Quantity = ?, SoldBy = ?, tableID = ?
     WHERE SaleID = ?
   `;
 
-  // Execute query
   db.query(
     query,
     [itemId, quantity, soldBy, tableID, SaleID],
@@ -568,18 +530,14 @@ export const editCanteen = (req, res) => {
 };
 
 export const deleteCanteen = (req, res) => {
-  // Get SaleID from URL parameters
   const SaleID = req.params.SaleID;
 
-  // Check if SaleID is provided
   if (!SaleID) {
     return res.status(400).json({ message: "SaleID is required" });
   }
 
-  // SQL DELETE query
   const query = `DELETE FROM cafesales WHERE SaleID = ?`;
 
-  // Execute the query
   db.query(query, [SaleID], (err, result) => {
     if (err) {
       console.error(err);
@@ -597,7 +555,6 @@ export const deleteCanteen = (req, res) => {
 };
 
 export const editJournal = (req, res) => {
-  // Correct way to get JournalID from URL params
   const JournalID = req.params.JournalID;
   const { title, type, amount, description, related, createdBy } = req.body;
 
@@ -642,7 +599,6 @@ export const editJournal = (req, res) => {
 };
 
 export const deleteJournal = (req, res) => {
-  // Correct way to get JournalID from URL params
   const JournalID = req.params.JournalID;
 
   if (!JournalID) {
@@ -670,7 +626,6 @@ export const deleteJournal = (req, res) => {
 };
 
 export const editPlayer = (req, res) => {
-  // Correct way to get PlayerID from URL params
   const PlayerID = req.params.PlayerID;
   const { Fullname, userName, phone, address } = req.body;
 
@@ -699,7 +654,6 @@ export const editPlayer = (req, res) => {
 };
 
 export const deletePlayer = (req, res) => {
-  // Get PlayerID from URL parameters
   const PlayerID = req.params.PlayerID;
 
   if (!PlayerID) {
@@ -723,7 +677,6 @@ export const deletePlayer = (req, res) => {
 };
 
 export const editSupplier = (req, res) => {
-  // Get SupplierID from URL params
   const SupplierID = req.params.SupplierID;
   const { Name, Email, ContactInfo, Address, Type } = req.body;
 
@@ -752,7 +705,6 @@ export const editSupplier = (req, res) => {
 };
 
 export const deleteSupplier = (req, res) => {
-  // Get SupplierID from URL params
   const SupplierID = req.params.SupplierID;
 
   if (!SupplierID) {
@@ -855,29 +807,6 @@ export const editTable = (req, res) => {
   });
 };
 
-// export const deleteTable = (req, res) => {
-//   const TableID = req.params.TableID;
-
-//   if (!TableID) {
-//     return res.status(400).json({ message: 'TableID is required' });
-//   }
-
-//   const query = `DELETE FROM tables WHERE TableID = ?`;
-
-//   db.query(query, [TableID], (err, result) => {
-//     if (err) {
-//       console.error(err);
-//       return res.status(500).json({ message: 'Failed to delete table' });
-//     }
-
-//     if (result.affectedRows > 0) {
-//       return res.status(200).json({ message: 'Table deleted successfully' });
-//     } else {
-//       return res.status(404).json({ message: 'Table not found' });
-//     }
-//   });
-// };
-
 export const adminLogin = (req, res) => {
   const { username, password } = req.body;
 
@@ -903,14 +832,12 @@ export const adminLogin = (req, res) => {
       return res.status(401).json({ message: "Invalid username or password" });
     }
 
-    // Set session data
     req.session.user = {
       userId: user.UserID,
       role: user.Role,
       username: user.username,
     };
 
-    // Exclude password from user data in response
     const { Password, ...userData } = user;
 
     res.status(200).json({
@@ -946,39 +873,6 @@ const query = "SELECT * FROM users WHERE Role IN ('staff', 'cafe')";
   });
 };
 
-// export const createBooking = (req, res) => {
-//   const { name, date, time, table, duration, phone, playerId } = req.body;
-
-//   // Validate all required fields
-//   if (!name || !date || !time || !table || !duration || !phone || !playerId) {
-//     return res.status(400).json({ message: "All fields are required." });
-//   }
-
-  
-
-//   const query = `
-//     INSERT INTO booktable 
-//     (Name, Date, Time, TableID, DurationHours, Phone, PlayerID)
-//     VALUES (?, ?, ?, ?, ?, ?, ?)
-//   `;
-
-//   db.query(
-//     query,
-//     [name, date, time, table, duration, phone, playerId],
-//     (err, result) => {
-//       if (err) {
-//         console.error("Error creating booking:", err);
-//         return res.status(500).json({ message: "Database error." });
-//       }
-
-//       res.status(201).json({
-//         message: "Booking created successfully.",
-//         bookingId: result.insertId,
-//       });
-//     }
-//   );
-// };
-
 export const getAllBooking = (req, res) => {
 const query = "SELECT * FROM booktable ORDER BY BookingID DESC";
 
@@ -990,34 +884,6 @@ const query = "SELECT * FROM booktable ORDER BY BookingID DESC";
     res.json({ results });
   });
 };
-
-// export const updateBooking = (req, res) => {
-//   const { id } = req.params;
-//   const { name, date, time, table, duration, phone, playerId } = req.body;
-
-//   if (!name || !date || !time || !table || !duration || !phone || !playerId) {
-//     return res.status(400).json({ message: "All fields are required." });
-//   }
-
-//   const query = `
-//     UPDATE booktable 
-//     SET Name = ?, Date = ?, Time = ?, TableID = ?, DurationHours = ?, Phone = ?, PlayerID = ?
-//     WHERE BookingID = ?
-//   `;
-
-//   db.query(
-//     query,
-//     [name, date, time, table, duration, phone, playerId, id],
-//     (err, result) => {
-//       if (err) {
-//         console.error("Error updating booking:", err);
-//         return res.status(500).json({ message: "Database error." });
-//       }
-
-//       res.status(200).json({ message: "Booking updated successfully." });
-//     }
-//   );
-// };
 
 export const deleteBooking = (req, res) => {
   const { id } = req.params;
@@ -1037,17 +903,14 @@ export const deleteBooking = (req, res) => {
 export const createBooking = (req, res) => {
   const { name, date, time, table, duration, phone, playerId } = req.body;
 
-  // Validate all required fields
   if (!name || !date || !time || !table || !duration || !phone || !playerId) {
     return res.status(400).json({ message: "All fields are required." });
   }
 
-  // Convert time to minutes for easier comparison
   const [hours, minutes] = time.split(':').map(Number);
   const startMinutes = hours * 60 + minutes;
   const endMinutes = startMinutes + (duration * 60);
 
-  // First check if the table is already booked at this time
   const checkAvailabilityQuery = `
     SELECT * FROM booktable 
     WHERE TableID = ? 
@@ -1074,7 +937,6 @@ export const createBooking = (req, res) => {
         });
       }
 
-      // If no conflicts, proceed with creating the booking
       const createQuery = `
         INSERT INTO booktable 
         (Name, Date, Time, TableID, DurationHours, Phone, PlayerID)
@@ -1108,12 +970,10 @@ export const updateBooking = (req, res) => {
     return res.status(400).json({ message: "All fields are required." });
   }
 
-  // Convert time to minutes for easier comparison
   const [hours, minutes] = time.split(':').map(Number);
   const startMinutes = hours * 60 + minutes;
   const endMinutes = startMinutes + (duration * 60);
 
-  // First check if the table is already booked at this time (excluding current booking)
   const checkAvailabilityQuery = `
     SELECT * FROM booktable 
     WHERE TableID = ? 
@@ -1141,7 +1001,6 @@ export const updateBooking = (req, res) => {
         });
       }
 
-      // If no conflicts, proceed with updating the booking
       const updateQuery = `
         UPDATE booktable 
         SET Name = ?, Date = ?, Time = ?, TableID = ?, DurationHours = ?, Phone = ?, PlayerID = ?
@@ -1171,16 +1030,9 @@ export const updateBooking = (req, res) => {
 export const getDashboardStats = (req, res) => {
   const stats = {};
 
-  // 1. Count all tables
   const tablesQuery = "SELECT COUNT(*) AS tableCount FROM tables";
-  
-  // 2. Count all players
   const playersQuery = "SELECT COUNT(*) AS playerCount FROM players";
-  
-  // 3. Count all suppliers
   const suppliersQuery = "SELECT COUNT(*) AS supplierCount FROM suppliers";
-  
-  // 4. Journal counts and amounts (income/expense)
   const journalQuery = `
     SELECT 
       SUM(CASE WHEN Type = 'Income' THEN 1 ELSE 0 END) AS incomeCount,
@@ -1189,8 +1041,6 @@ export const getDashboardStats = (req, res) => {
       SUM(CASE WHEN Type = 'Expense' THEN Amount ELSE 0 END) AS totalJournalExpense
     FROM journal
   `;
-  
-  // 5. Canteen sales count and total revenue
   const cafeSalesQuery = `
     SELECT 
       COUNT(*) AS cafeSalesCount,
@@ -1198,18 +1048,12 @@ export const getDashboardStats = (req, res) => {
     FROM cafesales cs
     JOIN inventory i ON cs.ItemID = i.ItemID
   `;
-  
-  // 6. Inventory costs
   const inventoryQuery = `
     SELECT 
       SUM(Quantity * CostPerUnit) AS totalInventoryCost
     FROM inventory
   `;
-  
-  // 7. Count all users
   const usersQuery = "SELECT COUNT(*) AS userCount FROM users";
-  
-  // 8. Game history stats
   const gameHistoryQuery = `
     SELECT 
       COUNT(*) AS totalGamesPlayed,
@@ -1217,7 +1061,6 @@ export const getDashboardStats = (req, res) => {
     FROM gamehistoryfinalview
   `;
 
-  // Execute all queries
   db.query(tablesQuery, (err, results) => {
     if (err) return handleError(err, res);
     stats.tableCount = results[0].tableCount;
@@ -1255,12 +1098,10 @@ export const getDashboardStats = (req, res) => {
                   stats.totalGamesPlayed = results[0].totalGamesPlayed;
                   stats.totalGameRevenue = results[0].totalGameRevenue || 0;
                   
-                  // Calculate FINAL TOTALS
                   stats.totalCosts = (stats.totalInventoryCost + stats.totalJournalExpense) || 0;
                   stats.totalEarnings = (stats.totalCafeRevenue + stats.totalJournalIncome + stats.totalGameRevenue) || 0;
                   stats.netProfit = (stats.totalEarnings - stats.totalCosts) || 0;
                   
-                  // All queries completed, send the response
                   res.json({ stats });
                 });
               });
