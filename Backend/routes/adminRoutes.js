@@ -30,7 +30,6 @@ import {
   editInventory,
   deleteInventory,
   editTable,
-  // deleteTable,
   adminLogin,
   availableTable,
   staffMembersNotAdmin,
@@ -81,6 +80,5 @@ router.get("/getAllBooking", getAllBooking);
 router.patch("/updateBooking/:id", updateBooking);
 router.delete("/deleteBooking/:id", deleteBooking);
 router.get("/getDashboardStats", getDashboardStats);
-//router.delete('/deleteTable/:TableID', deleteTable);
 
 export default router;
