@@ -52,14 +52,12 @@ export const loginMember = (req, res) => {
 
     const user = result[0];
 
-    // Simple password match
     const match = password === user.Password;
 
     if (!match) {
       return res.status(401).json({ message: "Incorrect password" });
     }
 
-    // First: get overall dashboard data
     const personalDashboardQuery = `
       SELECT * FROM personal_dashboard WHERE PlayerID = ?
     `;
@@ -76,7 +74,6 @@ export const loginMember = (req, res) => {
         if (dashboardData.length === 0) {
           return res.status(404).json({ message: "Dashboard data not found" });
         }
-        // console.log("Time in seconds: " + dashboardData[0].TotalTimeInSeconds)
         const totalSeconds = dashboardData[0].TotalTimeInSeconds;
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -85,7 +82,6 @@ export const loginMember = (req, res) => {
           (hours > 0 ? `${hours} hr ` : "") +
           (minutes > 0 ? `${minutes} min` : hours === 0 ? "0 min" : "");
 
-        //console.log("Dashboard [0]: " + dashboardData[0].TotalTimeInSeconds);
 
         const userData = {
           id: dashboardData[0].PlayerID,
@@ -98,7 +94,6 @@ export const loginMember = (req, res) => {
           totalTimePlayed: formattedTime,
         };
 
-        // Second: get monthly breakdown from personal_dashboard_time_date
         const monthlyQuery = `
         SELECT 
           YEAR(date) AS year,
@@ -134,7 +129,6 @@ export const loginMember = (req, res) => {
             };
           });
 
-          // Third: get available tables
           const availableTablesQuery = `
           SELECT TableID FROM tables 
           WHERE Status = 'Available'
@@ -149,15 +143,7 @@ export const loginMember = (req, res) => {
 
             const availableTables = tablesResult.map((table) => table.TableID);
 
-            // req.session.player = {
-            //   id: userData.id,
-            //   userName: userData.userName,
-            //   fullName: userData.fullName,
-            // };
-            // req.session.save((err) => {
-            //   if (err) console.error("Session save error:", err);
-            //   console.log("Session saved successfully!");
-            // });
+         
 
             res.status(200).json({
               message: "login successful",
@@ -172,7 +158,6 @@ export const loginMember = (req, res) => {
   });
 };
 
-// Configure multer for file storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/"); // Make sure 'uploads' folder exists
@@ -183,13 +168,10 @@ const storage = multer.diskStorage({
   },
 });
 
-// Export multer middleware for routes
 export const upload = multer({ storage });
 
-// Controller for uploading profile picture
 export const uploadProfilePicture = async (req, res) => {
-  // console.log("Body:", req.body);
-  //   console.log("File:", req.file);
+  
   try {
     const { playerId } = req.body;
     const filePath = req.file?.path;
@@ -256,12 +238,10 @@ export const getUserProfilePicture = (req, res) => {
 export const bookTable = (req, res) => {
   const { name, date, time, tableId, duration, phone, playerId } = req.body;
 
-  // Validate all fields
   if (!name || !date || !time || !tableId || !duration || !phone || !playerId) {
     return res.status(400).json({ message: "All fields are required." });
   }
 
-  // Step 1: Check if the table is available
   const checkTableQuery = "SELECT Status FROM tables WHERE TableID = ?";
   db.query(checkTableQuery, [tableId], (err, result) => {
     if (err) {
@@ -283,7 +263,6 @@ export const bookTable = (req, res) => {
         .json({ message: "Table is not available for booking." });
     }
 
-    // Step 2: Book the table (insert into booktable)
     const insertBookingQuery = `
           INSERT INTO booktable (Name, Date, Time, TableID, DurationHours, Phone, PlayerID)
           VALUES (?, ?, ?, ?, ?, ?, ?)
